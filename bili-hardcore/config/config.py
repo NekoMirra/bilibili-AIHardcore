@@ -3,6 +3,70 @@ import os
 # API Keys
 import json
 
+# Model configurations - base URLs and default models
+MODEL_CONFIGS = {
+    'deepseek': {
+        'base_url': 'https://api.deepseek.com/v1',
+        'model': 'deepseek-chat'
+    },
+    'gemini': {
+        'base_url': 'https://generativelanguage.googleapis.com/v1beta',
+        'model': 'gemini-2.0-flash'
+    },
+    'custom': {
+        'base_url': '',
+        'model': ''
+    },
+    # 阿里云DashScope模型配置示例
+    'dashscope': {
+        'base_url': 'https://dashscope.aliyuncs.com',
+        'model': 'qwen-turbo'  # 可选：qwen-turbo, qwen-plus, llama3-8b-chat等
+    }
+}
+
+def load_model_config(model_type):
+    """从用户目录加载模型配置
+    
+    Args:
+        model_type (str): 模型类型 (gemini, deepseek, 或 custom)
+    
+    Returns:
+        dict: 模型配置信息，包含 base_url 和 model
+    """
+    config_file = os.path.join(os.path.expanduser('~'), '.bili-hardcore', f'{model_type}_config.json')
+    if os.path.exists(config_file):
+        try:
+            with open(config_file, 'r') as f:
+                data = json.load(f)
+                if data:
+                    return {
+                        'base_url': data.get('base_url', MODEL_CONFIGS[model_type]['base_url']),
+                        'model': data.get('model', MODEL_CONFIGS[model_type]['model'])
+                    }
+        except Exception as e:
+            print(f'读取{model_type.upper()}模型配置失败: {str(e)}')
+    return MODEL_CONFIGS[model_type].copy()
+
+def save_model_config(model_type, base_url, model_name):
+    """保存模型配置到用户目录
+    
+    Args:
+        model_type (str): 模型类型 (gemini, deepseek, 或 custom)
+        base_url (str): API的基础URL
+        model_name (str): 模型名称
+    """
+    config_file = os.path.join(os.path.expanduser('~'), '.bili-hardcore', f'{model_type}_config.json')
+    try:
+        os.makedirs(os.path.dirname(config_file), exist_ok=True)
+        with open(config_file, 'w') as f:
+            json.dump({
+                'base_url': base_url,
+                'model': model_name
+            }, f)
+        print(f'{model_type.upper()}模型配置已保存')
+    except Exception as e:
+        print(f'保存{model_type.upper()}模型配置失败: {str(e)}')
+
 def load_api_key(key_type):
     """从用户目录加载API密钥
     
@@ -58,35 +122,89 @@ def load_gemini_key():
 def save_gemini_key(api_key):
     save_api_key('gemini', api_key)
 
-# 选择使用的LLM模型
-print("请选择使用的LLM模型：")
-print("1. DeepSeek")
-print("2. Gemini")
-model_choice = input("请输入数字(1或2): ").strip()
+def init_model_settings():
+    """初始化模型设置，由用户选择模型并设置API密钥
+    
+    Returns:
+        tuple: (model_choice, API_KEY_GEMINI, API_KEY_DEEPSEEK, API_KEY_CUSTOM, CUSTOM_MODEL_CONFIG)
+    """
+    print("请选择使用的LLM模型：")
+    print("1. DeepSeek")
+    print("2. Gemini")
+    print("3. 自定义模型")
+    model_choice = input("请输入数字(1、2或3): ").strip()
+    
+    API_KEY_GEMINI = ''
+    API_KEY_DEEPSEEK = ''
+    API_KEY_CUSTOM = ''
+    CUSTOM_MODEL_CONFIG = None
+    
+    if model_choice == '2':
+        # 加载Gemini模型配置
+        gemini_config = load_model_config('gemini')
+        
+        # 加载API Key
+        API_KEY_GEMINI = load_api_key('gemini')
+        if not API_KEY_GEMINI:
+            API_KEY_GEMINI = input('请输入GEMINI API密钥: ').strip()
+            if API_KEY_GEMINI:
+                save_api_key('gemini', API_KEY_GEMINI)
+    
+    elif model_choice == '1':
+        # 加载DeepSeek模型配置
+        deepseek_config = load_model_config('deepseek')
+        
+        # 加载API Key
+        API_KEY_DEEPSEEK = load_api_key('deepseek')
+        if not API_KEY_DEEPSEEK:
+            API_KEY_DEEPSEEK = input('请输入DEEPSEEK API密钥: ').strip()
+            if API_KEY_DEEPSEEK:
+                save_api_key('deepseek', API_KEY_DEEPSEEK)
+    elif model_choice == '3':
+        # 加载自定义模型配置
+        custom_config = load_model_config('custom')
+        
+        # 如果没有配置过或需要修改配置
+        if not custom_config['base_url'] or input('是否需要修改自定义模型配置？(y/n): ').lower() == 'y':
+            print("\n=== 自定义模型配置 ===")
+            print("提示: 对于阿里云模型，请使用 https://dashscope.aliyuncs.com 作为基础URL")
+            print("常用模型名称示例:")
+            print("- 阿里云通义千问: qwen-turbo, qwen-plus, llama3-8b-chat")
+            print("- OpenAI兼容API: gpt-3.5-turbo, gpt-4-turbo等")
+            print("=========\n")
+            
+            custom_config['base_url'] = input('请输入自定义模型API基础URL (例如: https://api.example.com/v1): ').strip()
+            custom_config['model'] = input('请输入自定义模型名称: ').strip()
+            save_model_config('custom', custom_config['base_url'], custom_config['model'])
+        
+        # 加载API Key
+        API_KEY_CUSTOM = load_api_key('custom')
+        if not API_KEY_CUSTOM:
+            API_KEY_CUSTOM = input('请输入自定义模型API密钥: ').strip()
+            if API_KEY_CUSTOM:
+                save_api_key('custom', API_KEY_CUSTOM)
+        
+        CUSTOM_MODEL_CONFIG = custom_config
+    else:
+        print("无效的选择，默认使用deepseek")
+        # 加载DeepSeek模型配置
+        deepseek_config = load_model_config('deepseek')
+        
+        # 加载API Key
+        API_KEY_DEEPSEEK = load_api_key('deepseek')
+        if not API_KEY_DEEPSEEK:
+            API_KEY_DEEPSEEK = input('请输入DEEPSEEK API密钥: ').strip()
+            if API_KEY_DEEPSEEK:
+                save_api_key('deepseek', API_KEY_DEEPSEEK)
+                
+    return model_choice, API_KEY_GEMINI, API_KEY_DEEPSEEK, API_KEY_CUSTOM, CUSTOM_MODEL_CONFIG
 
-API_KEY_GEMINI = ''
-API_KEY_DEEPSEEK = ''
-
-if model_choice == '2':
-    API_KEY_GEMINI = load_api_key('gemini')
-    if not API_KEY_GEMINI:
-        API_KEY_GEMINI = input('请输入GEMINI API密钥: ').strip()
-        if API_KEY_GEMINI:
-            save_api_key('gemini', API_KEY_GEMINI)
-
-elif model_choice == '1':
-    API_KEY_DEEPSEEK = load_api_key('deepseek')
-    if not API_KEY_DEEPSEEK:
-        API_KEY_DEEPSEEK = input('请输入DEEPSEEK API密钥: ').strip()
-        if API_KEY_DEEPSEEK:
-            save_api_key('deepseek', API_KEY_DEEPSEEK)
-else:
-    print("无效的选择，默认使用deepseek")
-    API_KEY_DEEPSEEK = load_api_key('deepseek')
-    if not API_KEY_DEEPSEEK:
-        API_KEY_DEEPSEEK = input('请输入DEEPSEEK API密钥:').strip()
-        if API_KEY_DEEPSEEK:
-            save_api_key('deepseek', API_KEY_DEEPSEEK)
+# 设置默认值
+model_choice = '1'  # 默认使用DeepSeek
+API_KEY_GEMINI = load_api_key('gemini')
+API_KEY_DEEPSEEK = load_api_key('deepseek')
+API_KEY_CUSTOM = load_api_key('custom')
+CUSTOM_MODEL_CONFIG = load_model_config('custom')
 
 # 项目根目录
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -126,3 +244,7 @@ PROMPT = '''
 ---
 请回答我的问题：{}
 '''
+
+# 如果是命令行模式（不是被导入），则初始化模型设置
+if __name__ == "__main__":
+    model_choice, API_KEY_GEMINI, API_KEY_DEEPSEEK, API_KEY_CUSTOM, CUSTOM_MODEL_CONFIG = init_model_settings()

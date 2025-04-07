@@ -1,12 +1,14 @@
 import requests
 from typing import Dict, Any, Optional
-from config.config import PROMPT,API_KEY_GEMINI
+from config.config import PROMPT, API_KEY_GEMINI, load_model_config
 from time import time
 
 class GeminiAPI:
     def __init__(self):
-        self.base_url = "https://generativelanguage.googleapis.com/v1beta"
-        self.model = "gemini-2.0-flash"
+        # 加载Gemini模型配置
+        config = load_model_config('gemini')
+        self.base_url = config['base_url']
+        self.model = config['model']
         self.api_key = API_KEY_GEMINI
 
     def ask(self, question: str, timeout: Optional[int] = 30) -> Dict[str, Any]:

@@ -41,6 +41,59 @@ def load_auth_data():
             logger.error(f'读取认证信息失败: {str(e)}')
     return False
 
+def is_login():
+    """检查用户是否已登录
+    
+    Returns:
+        bool: 是否已登录
+    """
+    # 检查是否有access_token和csrf
+    if not hasattr(senior, 'access_token') or not senior.access_token:
+        return False
+    if not hasattr(senior, 'csrf') or not senior.csrf:
+        return False
+    
+    # 检查headers中是否有必要的cookie和mid
+    headers = tools.request_b.headers
+    if 'x-bili-mid' not in headers or not headers['x-bili-mid']:
+        return False
+    if 'cookie' not in headers or not headers['cookie']:
+        return False
+    
+    return True
+
+def logout():
+    """登出当前账号，清除认证信息
+    
+    Returns:
+        bool: 是否成功登出
+    """
+    try:
+        # 清除内存中的认证信息
+        if hasattr(senior, 'access_token'):
+            senior.access_token = None
+        if hasattr(senior, 'csrf'):
+            senior.csrf = None
+        
+        # 从headers中移除认证信息
+        headers = tools.request_b.headers
+        if 'x-bili-mid' in headers:
+            headers.pop('x-bili-mid')
+        if 'cookie' in headers:
+            headers.pop('cookie')
+        
+        # 删除认证文件
+        if os.path.exists(AUTH_FILE):
+            os.remove(AUTH_FILE)
+            logger.info('已清除认证信息，登出成功')
+            return True
+        
+        logger.info('无已保存的认证信息，无需登出')
+        return True
+    except Exception as e:
+        logger.error(f'登出失败: {str(e)}')
+        return False
+
 def save_auth_data(auth_data):
     """保存认证信息到缓存
     
@@ -55,8 +108,12 @@ def save_auth_data(auth_data):
     except Exception as e:
         logger.error(f'保存认证信息失败: {str(e)}')
 
-def auth():
+def auth(gui_mode=False, gui_callback=None):
     """用户认证流程
+    
+    Args:
+        gui_mode (bool): 是否使用GUI模式
+        gui_callback (callable): GUI模式下的回调函数，用于显示二维码
     
     Returns:
         bool: 认证是否成功
@@ -70,23 +127,29 @@ def auth():
         qrcode_data = qrcode_get()
         url = qrcode_data.get('url')
         
+        if gui_mode and gui_callback:
+            # 调用GUI回调函数显示二维码
+            gui_callback(url)
+            logger.info('请使用哔哩哔哩APP扫描二维码登录')
+        else:
+            # 终端模式
+            # 创建QRCode实例
+            qr = QRCode(
+                version=1,
+                error_correction=ERROR_CORRECT_L,
+                box_size=2,
+                border=1
+            )
+
+            # 添加数据
+            qr.add_data(url)
+            qr.make(fit=True)
+
+            # 打印二维码
+            qr.print_ascii()
+            logger.info('请使用哔哩哔哩APP扫描二维码登录')
+            logger.info(f"如果二维码不能正常显示，请使用 https://cli.im/ 手动生成此链接的二维码进行扫码：{url}")
         
-        # 创建QRCode实例
-        qr = QRCode(
-            version=1,
-            error_correction=ERROR_CORRECT_L,
-            box_size=2,
-            border=1
-        )
-
-        # 添加数据
-        qr.add_data(url)
-        qr.make(fit=True)
-
-        # 打印二维码
-        qr.print_ascii()
-        logger.info('请使用哔哩哔哩APP扫描二维码登录')
-        logger.info(f"如果二维码不能正常显示，请使用 https://cli.im/ 手动生成此链接的二维码进行扫码：{url}")
         # 轮询二维码状态
         auth_code = qrcode_data.get('auth_code')
         retry_count = 0
