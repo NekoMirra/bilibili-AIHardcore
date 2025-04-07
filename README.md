@@ -9,11 +9,6 @@ B 站硬核会员自动答题工具，利用 LLM 实现智能答题功能。
 ⚠️请避免使用思考模型，防止超时报错
 ## 使用说明
 
-### 方式一：从 release 下载 exe 文件
-1. 下载 exe 文件
-2. 双击 exe 运行或在命令行中执行 `.\bili-hardcore.exe`
-
-### 方式二：从源码运行
 1. 克隆项目到本地
 
 ```bash
@@ -29,7 +24,7 @@ pip install -r requirements.txt
 3. 运行主程序
 
 ```bash
-python bili-hardcore/main.py
+python gui_main.py
 ```
 ## 使用流程
 1. 选择回答模型
