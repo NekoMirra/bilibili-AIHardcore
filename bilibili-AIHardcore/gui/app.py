@@ -158,8 +158,18 @@ class CaptchaDialog(QDialog):
             self.id_input = QLineEdit()
             layout.addWidget(self.id_input)
         
-        # 显示验证码链接
+        # 显示验证码图片
         if self.url:
+            # 添加验证码图片标签
+            self.captcha_img_label = QLabel("加载验证码中...")
+            self.captcha_img_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.captcha_img_label.setMinimumHeight(100)
+            layout.addWidget(self.captcha_img_label)
+            
+            # 加载验证码图片
+            self.load_captcha_image()
+            
+            # 同时提供链接作为备用
             url_label = QLabel(f"验证码链接: <a href='{self.url}'>{self.url}</a>")
             url_label.setOpenExternalLinks(True)
             layout.addWidget(url_label)
@@ -176,6 +186,55 @@ class CaptchaDialog(QDialog):
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
         layout.addWidget(button_box)
+    
+    def load_captcha_image(self):
+        """加载验证码图片"""
+        try:
+            import requests
+            from PyQt6.QtGui import QPixmap
+            
+            # 在一个新线程中下载图片
+            class ImageDownloader(QThread):
+                image_loaded = pyqtSignal(bytes)
+                
+                def __init__(self, url):
+                    super().__init__()
+                    self.url = url
+                
+                def run(self):
+                    try:
+                        response = requests.get(self.url, timeout=10)
+                        if response.status_code == 200:
+                            self.image_loaded.emit(response.content)
+                    except Exception as e:
+                        print(f"加载验证码图片出错: {e}")
+            
+            # 创建下载线程
+            self.downloader = ImageDownloader(self.url)
+            
+            # 连接信号
+            self.downloader.image_loaded.connect(self.set_captcha_image)
+            
+            # 启动线程
+            self.downloader.start()
+        except Exception as e:
+            self.captcha_img_label.setText(f"加载验证码失败: {e}")
+    
+    def set_captcha_image(self, image_data):
+        """设置验证码图片"""
+        try:
+            pixmap = QPixmap()
+            pixmap.loadFromData(image_data)
+            
+            # 确保图片不会太大
+            if pixmap.width() > 400:
+                pixmap = pixmap.scaled(400, pixmap.height() * 400 // pixmap.width(), 
+                                      Qt.AspectRatioMode.KeepAspectRatio, 
+                                      Qt.TransformationMode.SmoothTransformation)
+            
+            self.captcha_img_label.setPixmap(pixmap)
+        except Exception as e:
+            self.captcha_img_label.setText(f"显示验证码失败: {e}")
     
     def accept(self):
         if self.categories:
