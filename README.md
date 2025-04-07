@@ -1,10 +1,13 @@
-# Bili-Hardcore
+# bilibili-AIHardcore
 
 B 站硬核会员自动答题工具，利用 LLM 实现智能答题功能。
 **可用的模型：**
-- DeepSeek (V3)
-- Gemini (gemini-2.0-flash)(免费版可能会触发 Gemini 风控，导致无法答题)
 - OpenAI API兼容的其他 API（火山引擎、硅基流动等）
+
+![Image](https://github.com/user-attachments/assets/ad523686-ec27-4566-8b43-7dac6efa0579)
+
+![Image](https://github.com/user-attachments/assets/0a93b6bb-4266-4317-a7a3-ef56333949d0)
+
 
 ⚠️请避免使用思考模型，防止超时报错
 ## 使用说明
@@ -13,7 +16,7 @@ B 站硬核会员自动答题工具，利用 LLM 实现智能答题功能。
 
 ```bash
 git clone [项目地址]
-cd bili-hardcore
+cd bilibili-AIHardcore
 ```
 
 2. 安装依赖
@@ -48,8 +51,8 @@ python gui_main.py
 2. 开始答题直接之后软件直接退出：需要切换到大陆及香港以外的节点进行答题
 
 ## 注意事项
-- 使用前请确保已配置正确的 API Key，没有 API Key 的可以自己去免费申请一个 Gemini，或者 DeepSeek 充值一元
+- 使用前请确保已配置正确的 API Key
 - 程序仅调用 B 站接口和 LLM API，不会上传任何个人信息
-- 首次输入 API Key 和登录后，会将信息保存到 `~/.bili-hardcore`，下次运行时会自动读取。如遇到奇怪问题，请先清空此文件夹重新运行软件
+- 首次输入 API Key 和登录后，会将信息保存到 `~/.bilibili-AIHardcore`，下次运行时会自动读取。如遇到奇怪问题，请先清空此文件夹重新运行软件
 - 如果使用Gemini，注意需要切换至 Gemini 允许的地区运行，否则会被 Gemini API 拦截
 - 请合理使用，遵守 B 站相关规则
