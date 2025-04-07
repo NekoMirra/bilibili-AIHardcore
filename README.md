@@ -15,7 +15,7 @@ B 站硬核会员自动答题工具，利用 LLM 实现智能答题功能。
 1. 克隆项目到本地
 
 ```bash
-git clone [项目地址](https://github.com/NekoMirra/bilibili-AIHardcore)
+git clone https://github.com/NekoMirra/bilibili-AIHardcore
 cd bilibili-AIHardcore
 ```
 
