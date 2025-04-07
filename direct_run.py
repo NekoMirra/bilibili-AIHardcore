@@ -12,8 +12,8 @@ import traceback
 # 获取当前目录路径
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
-# 添加bili-hardcore目录到模块搜索路径
-bili_hardcore_dir = os.path.join(current_dir, "bili-hardcore")
+# 添加bilibili-AIHardcore目录到模块搜索路径
+bili_hardcore_dir = os.path.join(current_dir, "bilibili-AIHardcore")
 sys.path.append(bili_hardcore_dir)
 
 # 直接导入GUI模块

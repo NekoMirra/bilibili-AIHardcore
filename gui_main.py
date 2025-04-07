@@ -19,11 +19,11 @@ is_windows = platform.system() == "Windows"
 # 在Windows下，尝试使用无终端方式启动
 if is_windows:
     # 构建.pyw文件路径
-    pyw_path = os.path.join(current_dir, "bili-hardcore", "gui_main.pyw")
+    pyw_path = os.path.join(current_dir, "bilibili-AIHardcore", "gui_main.pyw")
     if not os.path.exists(pyw_path):
         # 如果.pyw文件不存在，复制当前脚本内容为.pyw文件
         try:
-            py_path = os.path.join(current_dir, "bili-hardcore", "gui_main.py")
+            py_path = os.path.join(current_dir, "bilibili-AIHardcore", "gui_main.py")
             with open(py_path, 'r', encoding='utf-8') as src, open(pyw_path, 'w', encoding='utf-8') as dst:
                 dst.write(src.read())
             print(f"已创建 {pyw_path}")
@@ -48,13 +48,13 @@ if is_windows:
     except Exception as e:
         print(f"启动无终端版本失败: {e}")
 
-# 将bili-hardcore目录添加到Python模块搜索路径
-bili_hardcore_dir = os.path.join(current_dir, "bili-hardcore")
+# 将bilibili-AIHardcore目录添加到Python模块搜索路径
+bili_hardcore_dir = os.path.join(current_dir, "bilibili-AIHardcore")
 sys.path.append(bili_hardcore_dir)
 
 # 常规方式启动
 try:
-    # 尝试运行bili-hardcore/gui_main.py
+    # 尝试运行bilibili-AIHardcore/gui_main.py
     gui_main_path = os.path.join(bili_hardcore_dir, "gui_main.py")
     if os.path.exists(gui_main_path):
         print("正在启动B站答题助手图形界面...")
