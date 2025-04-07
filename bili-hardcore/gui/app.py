@@ -48,7 +48,7 @@ class QRCodeDialog(QDialog):
     
     def initUI(self):
         self.setWindowTitle("B站扫码登录")
-        self.setMinimumSize(280, 350)
+        self.setMinimumSize(300, 400)
         
         layout = QVBoxLayout(self)
         
@@ -57,23 +57,15 @@ class QRCodeDialog(QDialog):
         hint_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(hint_label)
         
-        # 二维码图像容器
-        qr_container = QFrame()
-        qr_container.setFrameShape(QFrame.Shape.StyledPanel)
-        qr_container.setStyleSheet("background-color: white;")
-        qr_layout = QVBoxLayout(qr_container)
-        
+        # 二维码图像
         self.qrcode_label = QLabel()
         self.qrcode_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.qrcode_label.setFixedSize(200, 200)
-        qr_layout.addWidget(self.qrcode_label)
-        
-        layout.addWidget(qr_container)
+        self.qrcode_label.setMinimumSize(200, 200)
+        layout.addWidget(self.qrcode_label)
         
         # 状态提示
         self.status_label = QLabel("等待扫码...")
         self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.status_label.setWordWrap(True)  # 允许文本换行
         layout.addWidget(self.status_label)
         
         # 取消按钮
@@ -89,8 +81,8 @@ class QRCodeDialog(QDialog):
         qr = qrcode.QRCode(
             version=1,
             error_correction=qrcode.constants.ERROR_CORRECT_L,
-            box_size=5,  # 减小盒子大小
-            border=2,    # 减小边框宽度
+            box_size=5,
+            border=2,
         )
         qr.add_data(url)
         qr.make(fit=True)
@@ -106,14 +98,14 @@ class QRCodeDialog(QDialog):
         pixmap = QPixmap()
         pixmap.loadFromData(buffer.getvalue())
         
-        # 限制二维码尺寸，确保适合窗口
-        scaled_pixmap = pixmap.scaled(200, 200, Qt.AspectRatioMode.KeepAspectRatio)
+        # 缩放图像到合适的大小
+        pixmap = pixmap.scaled(200, 200, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
         
         # 显示二维码
-        self.qrcode_label.setPixmap(scaled_pixmap)
+        self.qrcode_label.setPixmap(pixmap)
         
         # 以文本方式也显示链接
-        self.status_label.setText(f"<a href='{url}'>点击这里直接打开链接进行登录</a>")
+        self.status_label.setText(f"<a href='{url}'>如果二维码无法显示，点击这里打开链接</a>")
         self.status_label.setOpenExternalLinks(True)
     
     def set_status(self, status):

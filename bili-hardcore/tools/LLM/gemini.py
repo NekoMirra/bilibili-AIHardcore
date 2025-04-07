@@ -1,13 +1,7 @@
 import requests
 from typing import Dict, Any, Optional
-<<<<<<< HEAD
 from config.config import PROMPT, API_KEY_GEMINI, load_model_config
 from time import time
-=======
-from config.config import PROMPT,API_KEY_GEMINI
-from time import time,sleep
-
->>>>>>> bc4dce083e196db131ba6d615dc44efa150e2dee
 
 class GeminiAPI:
     def __init__(self):
@@ -17,7 +11,7 @@ class GeminiAPI:
         self.model = config['model']
         self.api_key = API_KEY_GEMINI
 
-    def ask(self, question: str, timeout: Optional[int] = 10) -> Dict[str, Any]:
+    def ask(self, question: str, timeout: Optional[int] = 30) -> Dict[str, Any]:
         url = f"{self.base_url}/models/{self.model}:generateContent"
         
         headers = {
@@ -41,7 +35,6 @@ class GeminiAPI:
         }
 
         try:
-            sleep(5) # 每次请求间隔5秒，这样可能会减少 429 错误
             response = requests.post(
                 url,
                 headers=headers,

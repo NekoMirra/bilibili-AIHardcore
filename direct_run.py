@@ -11,6 +11,7 @@ import traceback
 
 # 获取当前目录路径
 current_dir = os.path.dirname(os.path.abspath(__file__))
+
 # 添加bili-hardcore目录到模块搜索路径
 bili_hardcore_dir = os.path.join(current_dir, "bili-hardcore")
 sys.path.append(bili_hardcore_dir)
@@ -19,7 +20,7 @@ sys.path.append(bili_hardcore_dir)
 try:
     print("成功导入GUI模块，正在启动应用程序...")
     
-    # 从bili-hardcore导入应用程序主模块
+    # 导入应用程序主模块
     from gui.app import main
     
     # 运行应用程序
