@@ -2,7 +2,12 @@ from client.senior import captcha_get, captcha_submit, category_get, question_ge
 from tools.logger import logger
 from tools.LLM.gemini import GeminiAPI
 from tools.LLM.deepseek import DeepSeekAPI
+<<<<<<< HEAD
 from tools.LLM.custom import CustomAPI
+=======
+from tools.LLM.openai import OpenAIAPI
+
+>>>>>>> bc4dce083e196db131ba6d615dc44efa150e2dee
 from config.config import model_choice
 from time import sleep
 
@@ -37,8 +42,13 @@ class QuizSession:
                     llm = DeepSeekAPI()
                 elif self.current_model == '2':
                     llm = GeminiAPI()
+<<<<<<< HEAD
                 elif self.current_model == '3':
                     llm = CustomAPI()
+=======
+                elif model_choice == '3':
+                    llm = OpenAIAPI()
+>>>>>>> bc4dce083e196db131ba6d615dc44efa150e2dee
                 else:
                     llm = DeepSeekAPI()
                 
@@ -205,7 +215,6 @@ class QuizSession:
             )
             if result and result.get('code') == 0:
                 logger.info("答案提交成功")
-                sleep(1)
                 return True
             else:
                 logger.error(f"答案提交失败: {result}")
