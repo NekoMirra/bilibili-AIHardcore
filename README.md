@@ -1,15 +1,16 @@
 # bilibili-AIHardcore
+基于原仓库进行修改
 
 B 站硬核会员自动答题工具，利用 LLM 实现智能答题功能。
 **可用的模型：**
-- OpenAI API兼容的其他 API（火山引擎、硅基流动等）
+- OpenAI API兼容（火山引擎、硅基流动等）
 
 ![Image](https://github.com/user-attachments/assets/ad523686-ec27-4566-8b43-7dac6efa0579)
 
 ![Image](https://github.com/user-attachments/assets/0a93b6bb-4266-4317-a7a3-ef56333949d0)
 
 
-⚠️请避免使用思考模型，防止超时报错
+⚠️请避免使用思考模型，防止超时报错，普通模型已足够完成答题流程并保证正确率。
 ## 使用说明
 
 1. 克隆项目到本地
