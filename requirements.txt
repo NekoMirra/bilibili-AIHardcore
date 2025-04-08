@@ -5,3 +5,4 @@ qrcode==8.1
 requests==2.32.3
 urllib3==2.3.0
 PyQt6==6.8.1
+pillow
